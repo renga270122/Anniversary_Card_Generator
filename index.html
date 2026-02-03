@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anniversary Card Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { color: #764ba2; margin-bottom: 30px; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .hobby-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .tone-selector {
+            margin-bottom: 20px;
+        }
+
+        .tone-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .tone-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tone-option {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .tone-option input[type="radio"] {
+            display: none;
+        }
+
+        .tone-option label {
+            display: block;
+            padding: 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: normal;
+        }
+
+        .tone-option input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .tone-option label:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }        .hobby-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hobby-item:hover {
+            border-color: #667eea;
+            background: #f0f0ff;
+        }
+        .hobby-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .hobby-item label {
+            cursor: pointer;
+            margin: 0;
+            font-weight: normal;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background: #5568d3; }
+        .card {
+            margin-top: 30px;
+            padding: 30px;
+            background: #f9f9f9;
+            border-radius: 15px;
+            display: none;
+        }
+        .card.show { display: block; }
+        .card-image {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .card-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .card-message {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .card-footer {
+            text-align: center;
+            font-size: 14px;
+            color: #764ba2;
+            font-style: italic;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #ddd;
+        }
+        .share-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .share-buttons button { flex: 1; padding: 12px; font-size: 16px; min-width: 140px; }
+        .whatsapp { background: #25D366; }
+        .whatsapp:hover { background: #20bd5a; }
+        .download { background: #667eea; }
+        .download:hover { background: #5568d3; }
+        .share-image { background: #0088cc; }
+        .share-image:hover { background: #0077b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💑 Anniversary Card Generator</h1>
+        <div style="background: linear-gradient(135deg, #667eea22 0%, #764ba233 100%); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+            <strong>✨ Powered by Soulvest's Personalization Engine</strong><br>
+            <small>Customized messages based on your unique relationship - your names, shared memories, and the perfect tone for your bond.</small>
+        </div>
+        
+        <form id="cardForm">
+            <div class="form-group">
+                <label for="name">Partner's Name</label>
+                <input type="text" id="name" required placeholder="Enter your partner's name">
+            </div>
+
+            <div class="form-group">
+                <label for="years">Years Together</label>
+                <input type="number" id="years" required placeholder="How many years?" min="1">
+            </div>
+
+            <div class="form-group">
+                <label>Choose Message Tone:</label>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+                    <div style="flex: 1; min-width: 150px;">
+                        <input type="radio" id="tone-romantic" name="tone" value="romantic" checked style="display: none;">
+                        <label for="tone-romantic" style="display: block; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: 2px solid #667eea; border-radius: 8px; cursor: pointer; text-align: center;">
+                            💕 Romantic<br><small>Deeply emotional & poetic</small>
+                        </label>
+                    </div>
+                    <div style="flex: 1; min-width: 150px;">
+                        <input type="radio" id="tone-respectful" name="tone" value="respectful" style="display: none;">
+                        <label for="tone-respectful" style="display: block; padding: 15px; background: white; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s;">
+                            🤝 Respectful<br><small>Warm & appreciative</small>
+                        </label>
+                    </div>
+                    <div style="flex: 1; min-width: 150px;">
+                        <input type="radio" id="tone-lighthearted" name="tone" value="lighthearted" style="display: none;">
+                        <label for="tone-lighthearted" style="display: block; padding: 15px; background: white; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s;">
+                            😊 Light-Hearted<br><small>Fun & playful</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>What You Love Doing Together (Select multiple)</label>
+                <div class="hobby-grid">
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-travel" name="hobby" value="travel">
+                        <label for="hobby-travel">Travel & Adventures</label>
+                    </div>
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-cooking" name="hobby" value="cooking">
+                        <label for="hobby-cooking">Cooking Together</label>
+                    </div>
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-movies" name="hobby" value="movies">
+                        <label for="hobby-movies">Movie Nights</label>
+                    </div>
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-music" name="hobby" value="music">
+                        <label for="hobby-music">Music & Concerts</label>
+                    </div>
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-singing" name="hobby" value="singing">
+                        <label for="hobby-singing">Singing Together</label>
+                    </div>
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-dancing" name="hobby" value="dancing">
+                        <label for="hobby-dancing">Dancing Together</label>
+                    </div>
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-reading" name="hobby" value="reading">
+                        <label for="hobby-reading">Reading Together</label>
+                    </div>
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-sports" name="hobby" value="sports">
+                        <label for="hobby-sports">Sports & Activities</label>
+                    </div>
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-art" name="hobby" value="art">
+                        <label for="hobby-art">Creative Projects</label>
+                    </div>
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-nature" name="hobby" value="nature">
+                        <label for="hobby-nature">Nature Walks</label>
+                    </div>
+                    <div class="hobby-item">
+                        <input type="checkbox" id="hobby-food" name="hobby" value="food">
+                        <label for="hobby-food">Trying New Restaurants</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="photo">Upload Photo (Optional)</label>
+                <input type="file" id="photo" accept="image/*">
+            </div>
+
+            <button type="submit">Generate Anniversary Card</button>
+        </form>
+
+        <div class="card" id="card">
+            <div class="card-image" id="cardImage"></div>
+            <div class="card-message" id="message"></div>
+            <div class="card-footer">💕 Made with love for my special person 💕</div>
+            <div class="share-buttons">
+                <button class="download" onclick="downloadCard()">📥 Download Image</button>
+                <button class="share-image" onclick="shareImage()">📤 Share Image</button>
+                <button class="whatsapp" onclick="shareWhatsApp()">💬 WhatsApp Text</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const messages = {
+            romantic: {
+                travel: [
+                    "My dearest {name}, {years} beautiful years of traveling through life together. Let's cherish every sunrise we watched, every road we explored, every adventure that made us stronger. Each journey with you is a treasure, each memory a precious gift. Here's to forever wandering the world, hand in hand. 🌍💕",
+                    "{name}, for {years} wonderful years, we've collected memories like souvenirs. Let's cherish the laughter on long drives, the getting lost together, the quiet moments in new places. You are my favorite destination, my home wherever we roam. Forever grateful for every step beside you. ✨❤️"
+                ],
+                cooking: [
+                    "Sweet {name}, {years} years of creating magic in the kitchen of life. Let's cherish every recipe we perfected, every meal we shared, every laugh over burnt toast. You add flavor to my soul, warmth to my heart. Together, we've cooked up the most beautiful love story. 🍳💕",
+                    "My love {name}, for {years} precious years, we've stirred dreams and seasoned life with love. Let's cherish those moments mixing ingredients, tasting together, creating memories. You're the secret ingredient that makes everything perfect. Forever cooking up happiness with you. 👨‍🍳❤️"
+                ],
+                movies: [
+                    "Dearest {name}, {years} years of our beautiful love story. Let's cherish every movie night, every shared laugh, every comfortable silence. You're the plot twist that made my life perfect, the happy ending I always dreamed of. Forever my favorite story. 🎬💕",
+                    "{name}, for {years} magical years, we've written our own romance. Let's cherish those cozy evenings, those whispered comments, those perfect moments together. You're my leading role, my greatest scene, my eternal love. 🎥❤️"
+                ],
+                music: [
+                    "My beloved {name}, {years} years of the sweetest symphony. Let's cherish every concert we attended, every song that moved us, every melody we hummed together. Your love is the music that fills my soul, the rhythm of my heart. Forever dancing to our song. 🎵💕",
+                    "{name}, for {years} beautiful years, you've been my favorite melody. Let's cherish those moments singing along, discovering new music, creating our soundtrack. You're the harmony to my life, the beat of my dreams. Forever our duet. 🎶❤️"
+                ],
+                dancing: [
+                    "Dearest {name}, {years} years of dancing through life in perfect harmony. Let's cherish every twirl, every step, every moment in your arms. You lead me with grace, hold me with love, move me with your soul. Forever swaying to the music of our love. 💃💕",
+                    "{name}, for {years} magical years, we've waltzed through joy and challenges. Let's cherish those dance floors, those quiet kitchen dances, those moments moving as one. You're my rhythm, my partner, my everything. Forever dancing together. 🕺❤️"
+                ],
+                reading: [
+                    "My beloved {name}, {years} years of sharing stories and dreams. Let's cherish every book we discussed, every page we turned together, every quiet evening reading side by side. You're the poetry my heart recites, the tale I want to read forever. 📚💕",
+                    "{name}, for {years} beautiful years, our love has been my favorite story. Let's cherish those moments lost in books, those conversations about characters, those cozy reading times. You're my greatest chapter, my eternal story. 📖❤️"
+                ],
+                sports: [
+                    "My champion {name}, {years} years of playing life's game together. Let's cherish every victory, every challenge we conquered, every moment we pushed each other to be better. You're my teammate, my strength, my greatest win. Forever cheering for us. 🏆💕",
+                    "{name}, for {years} incredible years, we've been the perfect team. Let's cherish those games watched together, those active moments, those triumphs shared. You're my MVP, my inspiration, my forever partner. Together we're unstoppable. ⚽❤️"
+                ],
+                art: [
+                    "My dearest {name}, {years} years of painting our masterpiece. Let's cherish every creative moment, every color we blended, every beautiful thing we made together. You are the art that takes my breath away, the masterpiece of my heart. Forever creating beauty with you. 🎨💕",
+                    "{name}, for {years} wonderful years, you've been my inspiration. Let's cherish those museum visits, those creative projects, those moments appreciating beauty. You're my greatest work of art, my eternal muse, my everything. 🖌️❤️"
+                ],
+                nature: [
+                    "Beloved {name}, {years} years of growing together like wildflowers. Let's cherish every sunrise we watched, every trail we hiked, every peaceful moment in nature's embrace. You're my sunshine, my earth, my sky. Together we bloom eternal. 🌸💕",
+                    "{name}, for {years} beautiful years, we've walked hand in hand through life. Let's cherish those quiet nature moments, those breathtaking views, those simple joys outdoors. You're my natural wonder, my perfect landscape, my home. 🌿❤️"
+                ],
+                food: [
+                    "My sweetest {name}, {years} years of savoring life together. Let's cherish every meal shared, every new taste discovered, every restaurant memory made. You add flavor to my existence, sweetness to my soul. Every moment with you is delicious. 🍽️💕",
+                    "{name}, for {years} delicious years, you've nourished my heart. Let's cherish those foodie adventures, those perfect bites, those conversations over meals. You're my favorite indulgence, my sweetest craving, my eternal feast. 🥂❤️"
+                ],
+                singing: [
+                    "My darling {name}, {years} years of singing our hearts out together. Let's cherish every song we sang, every moment our voices blended, every car ride concert. You make my soul harmonize, my heart overflow with melody. Forever our duet. 🎤💕",
+                    "{name}, for {years} precious years, we've created our own symphony. Let's cherish those singing moments, those shared melodies, those times music brought us closer. You're the song my heart forever sings, my eternal music. 🎵❤️"
+                ],
+                generic: [
+                    "My beloved {name}, {years} years of the most beautiful journey together. Every moment with you is a treasure, every memory a gift I hold close to my heart. Let's cherish all we've shared and all the beautiful tomorrows ahead. Forever yours. 💕",
+                    "Dearest {name}, for {years} precious years, you've been my everything. Let's cherish every laugh, every tear, every moment that made us who we are. You're my heart, my soul, my eternal love. Here's to forever together. ❤️"
+                ]
+            },
+            respectful: {
+                travel: [
+                    "Dear {name}, {years} wonderful years of exploring the world together. Thank you for every adventure, every new place, every shared experience. Your companionship makes every journey meaningful. Looking forward to many more travels together. 🌍",
+                    "{name}, Happy {years}th anniversary! I'm grateful for all the places we've discovered and the memories we've made along the way. Here's to more adventures and beautiful destinations ahead. ✈️"
+                ],
+                cooking: [
+                    "Dear {name}, {years} years of creating delicious memories together. Thank you for every meal shared, every recipe tried, every kitchen moment. Your presence makes everything taste better. Cheers to many more culinary adventures. 🍳",
+                    "{name}, Happy {years}th anniversary! I appreciate all the times we've cooked together and enjoyed good food. Here's to more shared meals and wonderful flavors. 👨‍🍳"
+                ],
+                movies: [
+                    "Dear {name}, {years} years of enjoying films together. Thank you for every movie night, every shared story, every comfortable evening. Your company makes every show special. Looking forward to many more screenings. 🎬",
+                    "{name}, Happy {years}th anniversary! I value all our movie nights and the discussions we've shared. Here's to more great films and cozy evenings together. 🎥"
+                ],
+                music: [
+                    "Dear {name}, {years} years of sharing the joy of music. Thank you for every concert, every song, every moment we enjoyed together. Your appreciation for music enriches my life. Cheers to more melodies ahead. 🎵",
+                    "{name}, Happy {years}th anniversary! I'm grateful for the music we've shared and the memories created. Here's to more harmonious moments together. 🎶"
+                ],
+                dancing: [
+                    "Dear {name}, {years} years of dancing through life together. Thank you for every step, every moment on the dance floor, every graceful memory. Your partnership means everything. Looking forward to more dances ahead. 💃",
+                    "{name}, Happy {years}th anniversary! I appreciate every dance we've shared and the rhythm we've found together. Here's to more beautiful moments in sync. 🕺"
+                ],
+                reading: [
+                    "Dear {name}, {years} years of sharing stories and ideas. Thank you for every book discussed, every quiet reading time, every meaningful conversation. Your thoughtfulness enriches my life. Cheers to more pages ahead. 📚",
+                    "{name}, Happy {years}th anniversary! I'm grateful for all the books we've shared and the insights gained. Here's to more stories and wonderful discussions. 📖"
+                ],
+                sports: [
+                    "Dear {name}, {years} years of being great teammates. Thank you for every game, every challenge faced, every victory celebrated. Your support makes me stronger. Looking forward to more wins together. 🏆",
+                    "{name}, Happy {years}th anniversary! I appreciate your encouragement and all the active moments we've shared. Here's to more teamwork and achievements. ⚽"
+                ],
+                art: [
+                    "Dear {name}, {years} years of appreciating beauty together. Thank you for every creative moment, every gallery visit, every artistic experience. Your perspective inspires me. Cheers to more artistic adventures. 🎨",
+                    "{name}, Happy {years}th anniversary! I'm grateful for all the art we've enjoyed and the creativity we've shared. Here's to more beautiful experiences. 🖌️"
+                ],
+                nature: [
+                    "Dear {name}, {years} years of enjoying nature together. Thank you for every hike, every sunrise, every peaceful moment outdoors. Your presence makes every view more beautiful. Looking forward to more natural wonders. 🌸",
+                    "{name}, Happy {years}th anniversary! I appreciate all our time in nature and the tranquility we've found. Here's to more outdoor adventures together. 🌿"
+                ],
+                food: [
+                    "Dear {name}, {years} years of enjoying great food together. Thank you for every restaurant visit, every new taste, every shared meal. Your company enhances every flavor. Cheers to more culinary discoveries. 🍽️",
+                    "{name}, Happy {years}th anniversary! I'm grateful for all the delicious experiences we've had. Here's to more wonderful meals and tasty memories. 🥂"
+                ],
+                singing: [
+                    "Dear {name}, {years} years of making music together. Thank you for every song sung, every note shared, every musical moment. Your voice brings joy to my life. Looking forward to more harmonies. 🎤",
+                    "{name}, Happy {years}th anniversary! I appreciate all the times we've sung together and the melodies we've created. Here's to more beautiful music ahead. 🎵"
+                ],
+                generic: [
+                    "Dear {name}, Happy {years}th anniversary! Thank you for all the wonderful memories we've created together. I appreciate your partnership, your support, and everything you bring to my life. Looking forward to many more years together. 💕",
+                    "{name}, {years} years together! I'm grateful for every moment, every experience, every challenge and joy we've shared. Thank you for being such an important part of my life. Here's to our continued journey. ❤️"
+                ]
+            },
+            lighthearted: {
+                travel: [
+                    "Happy {years}th anniversary, {name}! {years} years of adventures (and getting lost in random cities)! Thanks for not using the GPS when I said 'I know a shortcut.' Here's to more travel mishaps and passport stamps! 🌍😄",
+                    "{name}, {years} years together and we haven't killed each other on a road trip yet! That's true love! You're my favorite travel buddy, even when you over-pack. Let's keep exploring! ✈️🎒"
+                ],
+                cooking: [
+                    "Happy {years}th anniversary, {name}! {years} years of kitchen adventures (and smoke alarms)! Thanks for still eating my cooking experiments. You're the best taste-tester ever! Here's to more delicious disasters! 🍳😋",
+                    "{name}, {years} years and we've survived my cooking! From burnt toast to gourmet attempts, you've been a trooper. Love you more than pizza (and that's saying something)! 👨‍🍳🍕"
+                ],
+                movies: [
+                    "Happy {years}th anniversary, {name}! {years} years of movie nights! Thanks for not judging my guilty pleasure films and for sharing your snacks. You're my favorite co-star in this rom-com called life! 🎬🍿",
+                    "{name}, {years} years of arguing over what to watch! Thanks for letting me win sometimes. You're still my favorite person to binge-watch with! 🎥😊"
+                ],
+                music: [
+                    "Happy {years}th anniversary, {name}! {years} years and you haven't complained about my singing yet! That's true love right there! You're on repeat in my heart (unlike my Spotify playlist). 🎵😁",
+                    "{name}, {years} years of car karaoke! Thanks for harmonizing with my off-key notes. You make my heart sing (better than I actually sing)! 🎶🎤"
+                ],
+                dancing: [
+                    "Happy {years}th anniversary, {name}! {years} years of dancing like nobody's watching (but everyone is)! Thanks for not laughing at my moves. You're my perfect partner in crime! 💃😄",
+                    "{name}, {years} years and you still dance with me! From awkward first dances to kitchen boogie sessions, you're the best! Let's keep stepping on each other's toes! 🕺😊"
+                ],
+                reading: [
+                    "Happy {years}th anniversary, {name}! {years} years of sharing books! Thanks for not spoiling endings and for tolerating my reading lamp at 2 AM. You're my favorite plot twist! 📚😋",
+                    "{name}, {years} years together and our love story is still the best book I've read! Thanks for being my bookmark in life (and my night-light). 📖✨"
+                ],
+                sports: [
+                    "Happy {years}th anniversary, {name}! {years} years of being teammates! Thanks for cheering even when I mess up. You're my MVP (Most Valuable Partner)! Let's keep winning at life! 🏆😄",
+                    "{name}, {years} years and we're still crushing it! Thanks for the high-fives and the motivation. We make a killer team (even if we can't play together without arguing)! ⚽🎯"
+                ],
+                art: [
+                    "Happy {years}th anniversary, {name}! {years} years of artsy adventures! Thanks for pretending to understand modern art with me. You're my masterpiece (even when I can't draw stick figures)! 🎨😊",
+                    "{name}, {years} years of gallery dates! Thanks for not falling asleep during exhibits. You add color to my world (and put up with my doodles)! 🖌️✨"
+                ],
+                nature: [
+                    "Happy {years}th anniversary, {name}! {years} years of outdoor fun! Thanks for the hikes (even when I complained). You're my sunshine, even when it rains on our picnic! 🌸😄",
+                    "{name}, {years} years and you haven't given up on making me a nature person! Thanks for the fresh air and bug spray. You make outdoors bearable! 🌿🦋"
+                ],
+                food: [
+                    "Happy {years}th anniversary, {name}! {years} years of foodie adventures! Thanks for sharing your fries (most of the time). You're the ketchup to my fries, the cheese to my pizza! 🍽️😋",
+                    "{name}, {years} years of eating our way through life! Thanks for letting me have the last bite. Love you a latte! ☕🥐"
+                ],
+                singing: [
+                    "Happy {years}th anniversary, {name}! {years} years of shower concerts and car karaoke! Thanks for not telling me to stop singing (or at least pretending not to mind). You're the harmony to my off-key melody! 🎤😊",
+                    "{name}, {years} years and you still duet with me! That's either true love or hearing loss! Either way, you make my heart sing every single day! 🎵😄"
+                ],
+                generic: [
+                    "Happy {years}th anniversary, {name}! {years} years and you still laugh at my jokes! Thanks for putting up with me, loving me, and being my partner in crime. You're the best thing that ever happened to me! 💕😊",
+                    "{name}, {years} years together! Thanks for all the fun, the laughter, the adventures, and for not running away when you realized I'm weird. You're stuck with me now! Love you tons! ❤️😄"
+                ]
+            }
+        };
+
+        let uploadedImage = null;
+
+        document.getElementById('photo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedImage = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function generateCombinedMessage(name, years, hobbies, tone) {
+            const hobbyPhrases = {
+                romantic: {
+                    travel: "exploring the world together",
+                    cooking: "creating culinary magic in our kitchen",
+                    movies: "sharing countless movie nights",
+                    music: "discovering melodies that touch our souls",
+                    dancing: "dancing through life in perfect harmony",
+                    reading: "turning pages and sharing stories",
+                    sports: "cheering each other on in every challenge",
+                    art: "creating and appreciating beauty together",
+                    nature: "walking hand in hand through nature's wonders",
+                    food: "savoring every delicious moment together",
+                    singing: "singing our hearts out in perfect duets"
+                },
+                respectful: {
+                    travel: "traveling and exploring new places",
+                    cooking: "preparing meals and sharing recipes",
+                    movies: "enjoying films and meaningful discussions",
+                    music: "appreciating music and attending concerts",
+                    dancing: "dancing and creating graceful memories",
+                    reading: "reading and discussing books together",
+                    sports: "staying active and supporting each other",
+                    art: "visiting galleries and creating art",
+                    nature: "enjoying nature walks and outdoor time",
+                    food: "trying new restaurants and cuisines",
+                    singing: "singing and making music together"
+                },
+                lighthearted: {
+                    travel: "getting lost on adventures (and blaming the GPS)",
+                    cooking: "experimenting in the kitchen (and setting off smoke alarms)",
+                    movies: "binge-watching and arguing over what to watch next",
+                    music: "jamming out and pretending we can sing",
+                    dancing: "dancing like nobody's watching (but everyone is)",
+                    reading: "sharing books and spoiling endings",
+                    sports: "competing and trash-talking lovingly",
+                    art: "getting artsy and making a mess",
+                    nature: "hiking and complaining about bugs",
+                    food: "eating our way through every menu",
+                    singing: "belting out tunes and cracking up at our off-key notes"
+                }
+            };
+
+            // Get phrases for selected hobbies
+            const phrases = hobbies.map(h => hobbyPhrases[tone][h]);
+            
+            // Create combined message based on tone
+            if (tone === 'romantic') {
+                if (phrases.length === 2) {
+                    return `My dearest {name}, {years} beautiful years of ${phrases[0]} and ${phrases[1]}. Every moment with you is a treasure I hold close to my heart. Let's cherish all these precious memories and create countless more together. You are my everything, my eternal love. 💕❤️`;
+                } else if (phrases.length === 3) {
+                    return `Beloved {name}, {years} wonderful years of ${phrases[0]}, ${phrases[1]}, and ${phrases[2]}. Each memory we've created is a gift I cherish forever. You fill my life with joy, love, and meaning. Here's to our beautiful journey together. 💕✨`;
+                } else {
+                    const first = phrases.slice(0, 2).join(', ');
+                    const rest = phrases.length - 2;
+                    return `My darling {name}, {years} precious years of ${first}, and ${rest} more beautiful ways we've shared our love. Every moment with you writes another chapter in our perfect story. Forever grateful for you, forever yours. 💕🌟`;
+                }
+            } else if (tone === 'respectful') {
+                if (phrases.length === 2) {
+                    return `Dear {name}, Happy {years}th anniversary! Thank you for ${phrases[0]} and ${phrases[1]}. I appreciate every experience we've shared and look forward to many more years of companionship and wonderful memories together. 🤝💕`;
+                } else if (phrases.length === 3) {
+                    return `Dear {name}, {years} years of ${phrases[0]}, ${phrases[1]}, and ${phrases[2]}. I'm grateful for all the moments we've shared and the partnership we've built. Here's to continuing our journey together. 🤝✨`;
+                } else {
+                    const first = phrases.slice(0, 2).join(', ');
+                    const rest = phrases.length - 2;
+                    return `Dear {name}, Happy {years}th anniversary! Thank you for ${first}, and ${rest} other wonderful activities we enjoy together. I value our time together and look forward to more shared experiences. 🤝💕`;
+                }
+            } else { // lighthearted
+                if (phrases.length === 2) {
+                    return `Happy {years}th anniversary, {name}! {years} years of ${phrases[0]} and ${phrases[1]}! You're still my favorite partner in crime, my best friend, and the one who laughs at my jokes. Love you tons! 😄💕`;
+                } else if (phrases.length === 3) {
+                    return `{name}, {years} years of ${phrases[0]}, ${phrases[1]}, and ${phrases[2]}! We've had so much fun together (and you haven't run away yet). That's true love! Here's to more shenanigans! 😄🎉`;
+                } else {
+                    const first = phrases.slice(0, 2).join(', ');
+                    const rest = phrases.length - 2;
+                    return `Happy {years}th anniversary, {name}! {years} years of ${first}, and ${rest} other ways we've had a blast together! You put up with all my quirks and still love me. You're the best! 😄💕🎉`;
+                }
+            }
+        }
+
+        document.getElementById('cardForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const years = document.getElementById('years').value;
+            const tone = document.querySelector('input[name="tone"]:checked').value;
+            
+            // Get all checked hobbies
+            const selectedHobbies = Array.from(document.querySelectorAll('input[name="hobby"]:checked'))
+                .map(checkbox => checkbox.value);
+            
+            let finalMessage;
+            
+            if (selectedHobbies.length === 0) {
+                // No hobbies - use generic
+                const genericMessages = messages[tone]['generic'];
+                finalMessage = genericMessages[Math.floor(Math.random() * genericMessages.length)];
+            } else if (selectedHobbies.length === 1) {
+                // Single hobby - use specific message
+                const hobbyMessages = messages[tone][selectedHobbies[0]];
+                finalMessage = hobbyMessages[Math.floor(Math.random() * hobbyMessages.length)];
+            } else {
+                // Multiple hobbies - create combined message
+                finalMessage = generateCombinedMessage(name, years, selectedHobbies, tone);
+            }
+            
+            finalMessage = finalMessage
+                .replace(/{name}/g, name)
+                .replace(/{years}/g, years);
+            
+            document.getElementById('message').textContent = finalMessage;
+            
+            // Display photo if uploaded
+            const cardImage = document.getElementById('cardImage');
+            if (uploadedImage) {
+                cardImage.innerHTML = '<img src="' + uploadedImage + '" alt="Anniversary Photo">';
+            } else {
+                cardImage.innerHTML = '';
+            }
+            
+            document.getElementById('card').classList.add('show');
+            document.getElementById('card').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Handle tone selector styling
+        document.querySelectorAll('input[name="tone"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('input[name="tone"]').forEach(r => {
+                    const label = document.querySelector(`label[for="${r.id}"]`);
+                    if (r.checked) {
+                        label.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        label.style.color = 'white';
+                        label.style.borderColor = '#667eea';
+                        label.style.transform = 'scale(1.05)';
+                    } else {
+                        label.style.background = 'white';
+                        label.style.color = '#333';
+                        label.style.borderColor = '#ddd';
+                        label.style.transform = 'scale(1)';
+                    }
+                });
+            });
+        });
+
+        function shareWhatsApp() {
+            const message = document.getElementById('message').textContent;
+            const text = encodeURIComponent(message + '\n\n💕 Created with Soulvest Anniversary Card Generator');
+            const url = `https://wa.me/?text=${text}`;
+            window.open(url, '_blank');
+        }
+
+        function downloadCard() {
+            const card = document.getElementById('card');
+            const buttons = card.querySelector('.share-buttons');
+            
+            // Hide buttons before screenshot
+            buttons.style.display = 'none';
+            
+            // Add gift-print optimizations
+            card.style.padding = '40px';
+            card.style.minHeight = '600px';
+            
+            html2canvas(card, {
+                backgroundColor: '#ffffff',
+                scale: 3,
+                logging: false,
+                useCORS: true,
+                width: 1200,
+                height: 1200
+            }).then(canvas => {
+                // Reset styles
+                card.style.padding = '30px';
+                card.style.minHeight = 'auto';
+                buttons.style.display = 'flex';
+                
+                // Convert to blob and download
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'anniversary-card.png';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }, 'image/png');
+            });
+        }
+
+        function shareImage() {
+            const card = document.getElementById('card');
+            const buttons = card.querySelector('.share-buttons');
+            
+            // Hide buttons before screenshot
+            buttons.style.display = 'none';
+            
+            // Add gift-print optimizations
+            card.style.padding = '40px';
+            card.style.minHeight = '600px';
+            
+            html2canvas(card, {
+                backgroundColor: '#ffffff',
+                scale: 3,
+                logging: false,
+                useCORS: true,
+                width: 1200,
+                height: 1200
+            }).then(canvas => {
+                // Reset styles
+                card.style.padding = '30px';
+                card.style.minHeight = 'auto';
+                buttons.style.display = 'flex';
+                
+                canvas.toBlob(function(blob) {
+                    const file = new File([blob], 'anniversary-card.png', { type: 'image/png' });
+                    
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            title: 'Anniversary Card',
+                            text: 'Happy Anniversary! 💕',
+                            files: [file]
+                        }).catch(err => {
+                            console.log('Share cancelled or failed:', err);
+                            // Fallback: download the image
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'anniversary-card.png';
+                            a.click();
+                            URL.revokeObjectURL(url);
+                            alert('Image downloaded! You can now share it manually via WhatsApp or social media.');
+                        });
+                    } else {
+                        // Fallback: download the image
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'anniversary-card.png';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        alert('Image downloaded! You can now share it manually via WhatsApp or social media.');
+                    }
+                }, 'image/png');
+            });
+        }
+    </script>
+</body>
+</html>
