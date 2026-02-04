@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anniversary Card Generator</title>
+    <title>Event Card Generator - All Occasions</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -172,98 +173,215 @@
         .download:hover { background: #5568d3; }
         .share-image { background: #0088cc; }
         .share-image:hover { background: #0077b3; }
+        .ai-section {
+            background: linear-gradient(135deg, #667eea22 0%, #764ba233 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .api-key-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: flex-end;
+        }
+        .api-key-input input {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+        }
+        .api-key-input button {
+            padding: 10px 20px;
+            min-width: 120px;
+            margin-top: 0;
+        }
+        .ai-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .ai-buttons button {
+            flex: 1;
+            min-width: 140px;
+            padding: 10px;
+            font-size: 14px;
+            margin-top: 0;
+        }
+        .ai-button { background: #10a37f; }
+        .ai-button:hover { background: #0d8c6f; }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .suggestions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .suggestion-tag {
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .suggestion-tag:hover {
+            background: #667eea;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>💑 Anniversary Card Generator</h1>
+        <h1 id="pageTitle">🎉 Event Card Generator</h1>
         <div style="background: linear-gradient(135deg, #667eea22 0%, #764ba233 100%); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #667eea;">
-            <strong>✨ Powered by Soulvest's Personalization Engine</strong><br>
-            <small>Customized messages based on your unique relationship - your names, shared memories, and the perfect tone for your bond.</small>
+            <strong>✨ Powered by Soulvest's Personalization Engine + Google Gemini AI</strong><br>
+            <small>Customized messages for any occasion - birthdays, anniversaries, promotions, and more!</small>
+        </div>
+
+        <!-- AI Configuration Section -->
+        <div class="ai-section">
+            <div style="margin-bottom: 10px;">
+                <strong>🤖 AI Features (Optional)</strong>
+                <small style="display: block; color: #666; margin-top: 5px;">
+                    Get your free <a href="https://makersuite.google.com/app/apikeys" target="_blank" style="color: #667eea; text-decoration: none;">Gemini API key</a>
+                </small>
+            </div>
+            <div class="api-key-input">
+                <input type="password" id="geminiKey" placeholder="Paste your Gemini API key (optional)">
+                <button onclick="saveGeminiKey()" style="min-width: 80px; padding: 10px 15px;">Save</button>
+            </div>
+            <div id="statusMessage" class="status-message"></div>
+            <div class="ai-buttons" id="aiButtonsContainer" style="display: none;">
+                <button class="ai-button" onclick="generateWithAI()">✨ Generate with AI</button>
+                <button class="ai-button" onclick="suggestHobbies()">🎯 Suggest Hobbies</button>
+                <button class="ai-button" onclick="refineMessage()">🔄 Refine Message</button>
+            </div>
         </div>
         
         <form id="cardForm">
             <div class="form-group">
-                <label for="name">Partner's Name</label>
-                <input type="text" id="name" required placeholder="Enter your partner's name">
+                <label for="eventType">Select Occasion:</label>
+                <select id="eventType" required onchange="updateFormFields()">
+                    <option value="">-- Choose an event --</option>
+                    <option value="anniversary">💕 Anniversary</option>
+                    <option value="birthday">🎂 Birthday</option>
+                    <option value="engagement">💍 Engagement</option>
+                    <option value="wedding">💒 Wedding</option>
+                    <option value="babyshower">👶 Baby Shower</option>
+                    <option value="graduation">🎓 Graduation</option>
+                    <option value="promotion">🚀 Job Promotion</option>
+                    <option value="retirement">🏖️ Retirement</option>
+                    <option value="getwell">💚 Get Well</option>
+                    <option value="thankyou">🙏 Thank You</option>
+                    <option value="holiday">🎄 Holiday</option>
+                </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="group-name">
+                <label for="name" id="label-name">Recipient's Name</label>
+                <input type="text" id="name" required placeholder="Enter name">
+            </div>
+
+            <div class="form-group" id="group-years" style="display:none;">
                 <label for="years">Years Together</label>
-                <input type="number" id="years" required placeholder="How many years?" min="1">
+                <input type="number" id="years" placeholder="How many years?" min="1">
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="group-age" style="display:none;">
+                <label for="age">Age/Birthday</label>
+                <input type="number" id="age" placeholder="Age turning" min="1">
+            </div>
+
+            <div class="form-group" id="group-partner" style="display:none;">
+                <label for="partnerName">Partner's Name</label>
+                <input type="text" id="partnerName" placeholder="Enter partner's name">
+            </div>
+
+            <div class="form-group" id="group-babygender" style="display:none;">
+                <label for="babyGender">Baby Gender</label>
+                <select id="babyGender">
+                    <option value="boy">👦 Boy</option>
+                    <option value="girl">👧 Girl</option>
+                    <option value="neutral">👶 Neutral</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="group-jobtitle" style="display:none;">
+                <label for="jobTitle">New Job Title/Position</label>
+                <input type="text" id="jobTitle" placeholder="e.g., Senior Manager">
+            </div>
+
+            <div class="form-group" id="group-holiday" style="display:none;">
+                <label for="holidayType">Holiday Type</label>
+                <select id="holidayType">
+                    <option value="christmas">🎄 Christmas</option>
+                    <option value="newyear">🎆 New Year</option>
+                    <option value="valentines">💗 Valentine's Day</option>
+                    <option value="easter">🐰 Easter</option>
+                    <option value="thanksgiving">🦃 Thanksgiving</option>
+                    <option value="diwali">🪔 Diwali</option>
+                    <option value="generic">✨ Generic Holiday</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="group-tone">
                 <label>Choose Message Tone:</label>
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
                     <div style="flex: 1; min-width: 150px;">
                         <input type="radio" id="tone-romantic" name="tone" value="romantic" checked style="display: none;">
                         <label for="tone-romantic" style="display: block; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: 2px solid #667eea; border-radius: 8px; cursor: pointer; text-align: center;">
-                            💕 Romantic<br><small>Deeply emotional & poetic</small>
+                            💕 Romantic<br><small id="tone-romantic-desc">Deeply emotional & poetic</small>
                         </label>
                     </div>
                     <div style="flex: 1; min-width: 150px;">
                         <input type="radio" id="tone-respectful" name="tone" value="respectful" style="display: none;">
                         <label for="tone-respectful" style="display: block; padding: 15px; background: white; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s;">
-                            🤝 Respectful<br><small>Warm & appreciative</small>
+                            🤝 Respectful<br><small id="tone-respectful-desc">Warm & appreciative</small>
                         </label>
                     </div>
                     <div style="flex: 1; min-width: 150px;">
                         <input type="radio" id="tone-lighthearted" name="tone" value="lighthearted" style="display: none;">
                         <label for="tone-lighthearted" style="display: block; padding: 15px; background: white; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s;">
-                            😊 Light-Hearted<br><small>Fun & playful</small>
+                            😊 Light-Hearted<br><small id="tone-lighthearted-desc">Fun & playful</small>
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="group-hobbies">
                 <label>What You Love Doing Together (Select multiple)</label>
-                <div class="hobby-grid">
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-travel" name="hobby" value="travel">
-                        <label for="hobby-travel">Travel & Adventures</label>
-                    </div>
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-cooking" name="hobby" value="cooking">
-                        <label for="hobby-cooking">Cooking Together</label>
-                    </div>
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-movies" name="hobby" value="movies">
-                        <label for="hobby-movies">Movie Nights</label>
-                    </div>
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-music" name="hobby" value="music">
-                        <label for="hobby-music">Music & Concerts</label>
-                    </div>
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-singing" name="hobby" value="singing">
-                        <label for="hobby-singing">Singing Together</label>
-                    </div>
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-dancing" name="hobby" value="dancing">
-                        <label for="hobby-dancing">Dancing Together</label>
-                    </div>
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-reading" name="hobby" value="reading">
-                        <label for="hobby-reading">Reading Together</label>
-                    </div>
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-sports" name="hobby" value="sports">
-                        <label for="hobby-sports">Sports & Activities</label>
-                    </div>
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-art" name="hobby" value="art">
-                        <label for="hobby-art">Creative Projects</label>
-                    </div>
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-nature" name="hobby" value="nature">
-                        <label for="hobby-nature">Nature Walks</label>
-                    </div>
-                    <div class="hobby-item">
-                        <input type="checkbox" id="hobby-food" name="hobby" value="food">
-                        <label for="hobby-food">Trying New Restaurants</label>
-                    </div>
+                <div class="hobby-grid" id="hobbiesContainer">
                 </div>
             </div>
 
@@ -272,13 +390,13 @@
                 <input type="file" id="photo" accept="image/*">
             </div>
 
-            <button type="submit">Generate Anniversary Card</button>
+            <button type="submit" id="submitBtn">Generate Card</button>
         </form>
 
         <div class="card" id="card">
             <div class="card-image" id="cardImage"></div>
             <div class="card-message" id="message"></div>
-            <div class="card-footer">💕 Made with love for my special person 💕</div>
+            <div class="card-footer" id="cardFooter">💕 Made with love from Soulvest 💕</div>
             <div class="share-buttons">
                 <button class="download" onclick="downloadCard()">📥 Download Image</button>
                 <button class="share-image" onclick="shareImage()">📤 Share Image</button>
@@ -578,6 +696,90 @@
             document.getElementById('card').scrollIntoView({ behavior: 'smooth' });
         });
 
+        // Event-specific configuration
+        const eventConfig = {
+            anniversary: { showYears: true, showAge: false, showPartner: false, showBabyGender: false, showJobTitle: false, showHoliday: false },
+            birthday: { showYears: false, showAge: true, showPartner: false, showBabyGender: false, showJobTitle: false, showHoliday: false },
+            engagement: { showYears: false, showAge: false, showPartner: true, showBabyGender: false, showJobTitle: false, showHoliday: false },
+            wedding: { showYears: false, showAge: false, showPartner: true, showBabyGender: false, showJobTitle: false, showHoliday: false },
+            babyshower: { showYears: false, showAge: false, showPartner: false, showBabyGender: true, showJobTitle: false, showHoliday: false },
+            graduation: { showYears: false, showAge: false, showPartner: false, showBabyGender: false, showJobTitle: false, showHoliday: false },
+            promotion: { showYears: false, showAge: false, showPartner: false, showBabyGender: false, showJobTitle: true, showHoliday: false },
+            retirement: { showYears: false, showAge: false, showPartner: false, showBabyGender: false, showJobTitle: false, showHoliday: false },
+            getwell: { showYears: false, showAge: false, showPartner: false, showBabyGender: false, showJobTitle: false, showHoliday: false },
+            thankyou: { showYears: false, showAge: false, showPartner: false, showBabyGender: false, showJobTitle: false, showHoliday: false },
+            holiday: { showYears: false, showAge: false, showPartner: false, showBabyGender: false, showJobTitle: false, showHoliday: true }
+        };
+
+        const eventLabels = {
+            anniversary: { name: "Partner's Name", years: "Years Together" },
+            birthday: { name: "Person's Name", age: "Age" },
+            engagement: { name: "Person's Name", partner: "Partner's Name" },
+            wedding: { name: "Person's Name", partner: "Partner's Name" },
+            babyshower: { name: "Parent's Name", baby: "Baby Name/Gender" },
+            graduation: { name: "Graduate's Name" },
+            promotion: { name: "Person's Name", job: "New Position" },
+            retirement: { name: "Person's Name" },
+            getwell: { name: "Person's Name" },
+            thankyou: { name: "Person's Name" },
+            holiday: { name: "Person's Name" }
+        };
+
+        function updateFormFields() {
+            const eventType = document.getElementById('eventType').value;
+            const config = eventConfig[eventType] || {};
+
+            // Show/hide fields based on event type
+            document.getElementById('group-years').style.display = config.showYears ? 'block' : 'none';
+            document.getElementById('group-age').style.display = config.showAge ? 'block' : 'none';
+            document.getElementById('group-partner').style.display = config.showPartner ? 'block' : 'none';
+            document.getElementById('group-babygender').style.display = config.showBabyGender ? 'block' : 'none';
+            document.getElementById('group-jobtitle').style.display = config.showJobTitle ? 'block' : 'none';
+            document.getElementById('group-holiday').style.display = config.showHoliday ? 'block' : 'none';
+
+            // Update label for name field
+            const labels = eventLabels[eventType];
+            if (labels) {
+                document.getElementById('label-name').textContent = labels.name || 'Name';
+            }
+
+            // Always show hobbies and tone
+            document.getElementById('group-hobbies').style.display = 'block';
+            document.getElementById('group-tone').style.display = 'block';
+
+            populateHobbies();
+        }
+
+        function populateHobbies() {
+            const hobbiesContainer = document.getElementById('hobbiesContainer');
+            hobbiesContainer.innerHTML = '';
+            const hobbies = ['Travel', 'Cooking', 'Movies', 'Music', 'Dancing', 'Reading', 'Sports', 'Art', 'Nature', 'Food', 'Singing'];
+            const hobbiesEmoji = {
+                'Travel': '✈️',
+                'Cooking': '🍳',
+                'Movies': '🎬',
+                'Music': '🎵',
+                'Dancing': '💃',
+                'Reading': '📚',
+                'Sports': '⚽',
+                'Art': '🎨',
+                'Nature': '🌿',
+                'Food': '🍽️',
+                'Singing': '🎤'
+            };
+
+            hobbies.forEach(hobby => {
+                const div = document.createElement('div');
+                div.className = 'hobby-item';
+                const id = hobby.toLowerCase();
+                div.innerHTML = `
+                    <input type="checkbox" id="hobby-${id}" name="hobby" value="${id}">
+                    <label for="hobby-${id}">${hobbiesEmoji[hobby]} ${hobby}</label>
+                `;
+                hobbiesContainer.appendChild(div);
+            });
+        }
+
         // Handle tone selector styling
         document.querySelectorAll('input[name="tone"]').forEach(radio => {
             radio.addEventListener('change', function() {
@@ -596,6 +798,11 @@
                     }
                 });
             });
+        });
+
+        // Initialize hobbies on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            populateHobbies();
         });
 
         function shareWhatsApp() {
@@ -696,6 +903,232 @@
                     }
                 }, 'image/png');
             });
+        }
+
+        // ===== GEMINI AI INTEGRATION =====
+        let genAI = null;
+        let geminiKey = null;
+
+        function saveGeminiKey() {
+            const apiKey = document.getElementById('geminiKey').value.trim();
+            if (!apiKey) {
+                showStatus('Please enter your Gemini API key', 'error');
+                return;
+            }
+
+            try {
+                const { GoogleGenerativeAI } = window;
+                genAI = new GoogleGenerativeAI(apiKey);
+                geminiKey = apiKey;
+                localStorage.setItem('geminiKey', apiKey);
+                document.getElementById('aiButtonsContainer').style.display = 'flex';
+                showStatus('✓ Gemini API connected successfully!', 'success');
+                document.getElementById('geminiKey').style.borderColor = '#10a37f';
+            } catch (error) {
+                showStatus('Invalid API key. Please try again.', 'error');
+            }
+        }
+
+        // Check for saved API key on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            populateHobbies();
+            const savedKey = localStorage.getItem('geminiKey');
+            if (savedKey) {
+                document.getElementById('geminiKey').value = savedKey;
+                try {
+                    const { GoogleGenerativeAI } = window;
+                    genAI = new GoogleGenerativeAI(savedKey);
+                    geminiKey = savedKey;
+                    document.getElementById('aiButtonsContainer').style.display = 'flex';
+                    document.getElementById('geminiKey').style.borderColor = '#10a37f';
+                } catch (error) {
+                    localStorage.removeItem('geminiKey');
+                }
+            }
+        });
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.style.display = 'block';
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 4000);
+        }
+
+        async function generateWithAI() {
+            if (!genAI) {
+                showStatus('Please configure Gemini API first', 'error');
+                return;
+            }
+
+            const eventType = document.getElementById('eventType').value;
+            const name = document.getElementById('name').value;
+            const tone = document.querySelector('input[name="tone"]:checked').value;
+
+            if (!eventType || !name) {
+                showStatus('Please select event type and enter name', 'error');
+                return;
+            }
+
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>';
+
+            try {
+                const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+                const eventDescriptions = {
+                    anniversary: "an anniversary celebration",
+                    birthday: "a birthday celebration",
+                    engagement: "an engagement announcement",
+                    wedding: "a wedding celebration",
+                    babyshower: "a baby shower",
+                    graduation: "a graduation ceremony",
+                    promotion: "a job promotion",
+                    retirement: "a retirement party",
+                    getwell: "get well wishes",
+                    thankyou: "a thank you message",
+                    holiday: "a holiday greeting"
+                };
+
+                const prompt = `Create a heartfelt, personalized ${tone} message for ${eventDescriptions[eventType]} for someone named ${name}. 
+                The message should be:
+                - Genuine and touching (${tone} tone)
+                - 3-4 sentences long
+                - Include relevant emojis
+                - Personal and specific to the occasion
+                - Memorable and shareable
+                
+                Just provide the message, no explanations.`;
+
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const message = response.text();
+
+                document.getElementById('message').textContent = message;
+                showStatus('✓ AI message generated successfully!', 'success');
+            } catch (error) {
+                showStatus('Error generating message: ' + error.message, 'error');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '✨ Generate with AI';
+            }
+        }
+
+        async function suggestHobbies() {
+            if (!genAI) {
+                showStatus('Please configure Gemini API first', 'error');
+                return;
+            }
+
+            const name = document.getElementById('name').value;
+            const eventType = document.getElementById('eventType').value;
+
+            if (!name) {
+                showStatus('Please enter a name first', 'error');
+                return;
+            }
+
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>';
+
+            try {
+                const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+                const prompt = `For a person named ${name}, suggest 2-3 hobbies or interests they might enjoy for ${eventType}. 
+                Choose from: travel, cooking, movies, music, dancing, reading, sports, art, nature, food, singing.
+                
+                Respond in this exact format (comma-separated):
+                hobby1, hobby2, hobby3
+                
+                Just provide the hobbies, nothing else.`;
+
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const suggestions = response.text().split(',').map(s => s.trim().toLowerCase());
+
+                // Display suggestions
+                const hobbiesContainer = document.getElementById('hobbiesContainer');
+                let suggestionsHTML = '<div class="suggestions-grid">';
+                
+                suggestions.forEach(hobby => {
+                    const checkbox = hobbiesContainer.querySelector(`input[value="${hobby}"]`);
+                    if (checkbox) {
+                        suggestionsHTML += `
+                            <div class="suggestion-tag" onclick="toggleHobby('${hobby}')">
+                                ${checkbox.nextElementSibling.textContent}
+                            </div>
+                        `;
+                    }
+                });
+                suggestionsHTML += '</div>';
+
+                hobbiesContainer.innerHTML += suggestionsHTML;
+                showStatus('✓ Hobby suggestions generated!', 'success');
+
+                // Auto-select suggestions
+                suggestions.forEach(hobby => {
+                    const checkbox = document.querySelector(`input[value="${hobby}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            } catch (error) {
+                showStatus('Error suggesting hobbies: ' + error.message, 'error');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🎯 Suggest Hobbies';
+            }
+        }
+
+        async function refineMessage() {
+            if (!genAI) {
+                showStatus('Please configure Gemini API first', 'error');
+                return;
+            }
+
+            const currentMessage = document.getElementById('message').textContent;
+            if (!currentMessage) {
+                showStatus('Please generate a message first', 'error');
+                return;
+            }
+
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>';
+
+            try {
+                const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+                const prompt = `Improve and refine this message to make it more engaging and memorable while keeping the same tone:
+                
+                "${currentMessage}"
+                
+                Make it slightly more poetic or impactful. Keep it 3-4 sentences. Just provide the refined message, no explanations.`;
+
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const refinedMessage = response.text();
+
+                document.getElementById('message').textContent = refinedMessage;
+                showStatus('✓ Message refined successfully!', 'success');
+            } catch (error) {
+                showStatus('Error refining message: ' + error.message, 'error');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🔄 Refine Message';
+            }
+        }
+
+        function toggleHobby(hobbyId) {
+            const checkbox = document.querySelector(`input[value="${hobbyId}"]`);
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+            }
         }
     </script>
 </body>

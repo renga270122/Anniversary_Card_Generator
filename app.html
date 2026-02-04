@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soulvest Card Generator - AI-Powered Celebrations</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <!-- Single-Page Flow -->
+    <section id="landing" class="view">
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">✨ Celebrate Every Moment</h1>
+                <p class="hero-subtitle">Create stunning, AI-powered cards for every special occasion</p>
+                <div class="hero-features">
+                    <span class="feature-badge">🤖 AI-Powered</span>
+                    <span class="feature-badge">🎨 Beautiful Themes</span>
+                    <span class="feature-badge">🌍 Multi-Language</span>
+                    <span class="feature-badge">🎵 Music & Voice</span>
+                </div>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-large" onclick="showEventSelection()">
+                        🎉 Create a Card
+                    </button>
+                    <button class="btn btn-secondary btn-large" onclick="showTemplates()">
+                        🎨 Browse Templates
+                    </button>
+                    <button class="btn btn-secondary btn-large" onclick="showUpcomingEvents()">
+                        📅 Upcoming Events
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Showcase Carousel -->
+        <div class="showcase-section">
+            <h2 class="section-title">Popular Card Types</h2>
+            <div class="carousel">
+                <div class="card-preview" onclick="quickStart('birthday')">
+                    <div class="card-icon">🎂</div>
+                    <h3>Birthday</h3>
+                    <p>Make their day special</p>
+                </div>
+                <div class="card-preview" onclick="quickStart('anniversary')">
+                    <div class="card-icon">💍</div>
+                    <h3>Anniversary</h3>
+                    <p>Celebrate love</p>
+                </div>
+                <div class="card-preview" onclick="quickStart('promotion')">
+                    <div class="card-icon">🎉</div>
+                    <h3>Promotion</h3>
+                    <p>Career milestone</p>
+                </div>
+                <div class="card-preview" onclick="quickStart('holiday')">
+                    <div class="card-icon">🎄</div>
+                    <h3>Festivals</h3>
+                    <p>Seasonal greetings</p>
+                </div>
+                <div class="card-preview" onclick="quickStart('wedding')">
+                    <div class="card-icon">💒</div>
+                    <h3>Wedding</h3>
+                    <p>New beginnings</p>
+                </div>
+                <div class="card-preview" onclick="quickStart('graduation')">
+                    <div class="card-icon">🎓</div>
+                    <h3>Graduation</h3>
+                    <p>Achievement unlocked</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI-Powered Messages</h3>
+                <p>Gemini AI generates personalized messages tailored to your relationship and tone</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>Auto Design</h3>
+                <p>Themes are selected internally for a clean, heart‑warming look</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <h3>Multi-Language</h3>
+                <p>Create cards in any language with instant AI translation</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎵</div>
+                <h3>Music & Voice</h3>
+                <p>Add background music and voice notes for a personal touch</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎭</div>
+                <h3>AI Artwork</h3>
+                <p>Generate custom illustrations and decorative elements</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Instant Sharing</h3>
+                <p>Share via WhatsApp, LinkedIn, Instagram, or generate QR codes</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="eventSelection" class="view">
+        <div class="container">
+            <h1 class="page-title">Choose Your Occasion</h1>
+            
+            <!-- Smart Suggestions -->
+            <div id="smartSuggestions" class="smart-suggestions">
+                <h3>🔔 Upcoming Events</h3>
+                <div id="upcomingEventsList"></div>
+            </div>
+
+            <!-- Event Grid -->
+            <div class="event-grid">
+                <div class="event-card" onclick="selectEvent('birthday')">
+                    <div class="event-icon">🎂</div>
+                    <h3>Birthday</h3>
+                    <p>Celebrate another year</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('anniversary')">
+                    <div class="event-icon">💍</div>
+                    <h3>Anniversary</h3>
+                    <p>Years of togetherness</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('engagement')">
+                    <div class="event-icon">💎</div>
+                    <h3>Engagement</h3>
+                    <p>A promise forever</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('wedding')">
+                    <div class="event-icon">💒</div>
+                    <h3>Wedding</h3>
+                    <p>The big day</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('babyshower')">
+                    <div class="event-icon">👶</div>
+                    <h3>Baby Shower</h3>
+                    <p>New arrival joy</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('graduation')">
+                    <div class="event-icon">🎓</div>
+                    <h3>Graduation</h3>
+                    <p>Academic achievement</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('promotion')">
+                    <div class="event-icon">🚀</div>
+                    <h3>Job Promotion</h3>
+                    <p>Career milestone</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('retirement')">
+                    <div class="event-icon">🏖️</div>
+                    <h3>Retirement</h3>
+                    <p>New chapter begins</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('getwell')">
+                    <div class="event-icon">💚</div>
+                    <h3>Get Well Soon</h3>
+                    <p>Sending healing vibes</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('thankyou')">
+                    <div class="event-icon">🙏</div>
+                    <h3>Thank You</h3>
+                    <p>Express gratitude</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('holiday')">
+                    <div class="event-icon">🎄</div>
+                    <h3>Holiday</h3>
+                    <p>Seasonal celebrations</p>
+                </div>
+                <div class="event-card" onclick="selectEvent('custom')">
+                    <div class="event-icon">✨</div>
+                    <h3>Custom Event</h3>
+                    <p>Your special occasion</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="personalization" class="view">
+        <div class="container">
+            <h1 class="page-title">✨ Personalize Your Message</h1>
+
+            <!-- Gemini API Configuration -->
+            <div class="api-config-banner" id="apiConfigBanner">
+                <span>⚠️ Add your Gemini API key to unlock AI features</span>
+                <button class="btn btn-small" onclick="showAPIConfig()">Configure API</button>
+            </div>
+
+            <div class="personalization-form">
+                <!-- Basic Info -->
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Recipient's Name</label>
+                            <input type="text" id="recipientName" placeholder="Enter name">
+                        </div>
+                        <div class="form-group" id="additionalInfo"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>💛 Message Style</h3>
+                    <p>We keep it simple and heart-warming by default.</p>
+                </div>
+
+                <!-- Hobbies & Interests -->
+                <div class="form-section">
+                    <h3>🎯 Shared Interests (Optional)</h3>
+                    <div class="hobby-grid-modern">
+                        <label class="hobby-badge">
+                            <input type="checkbox" value="travel">
+                            <span>✈️ Travel</span>
+                        </label>
+                        <label class="hobby-badge">
+                            <input type="checkbox" value="cooking">
+                            <span>🍳 Cooking</span>
+                        </label>
+                        <label class="hobby-badge">
+                            <input type="checkbox" value="music">
+                            <span>🎵 Music</span>
+                        </label>
+                        <label class="hobby-badge">
+                            <input type="checkbox" value="sports">
+                            <span>⚽ Sports</span>
+                        </label>
+                        <label class="hobby-badge">
+                            <input type="checkbox" value="reading">
+                            <span>📚 Reading</span>
+                        </label>
+                        <label class="hobby-badge">
+                            <input type="checkbox" value="movies">
+                            <span>🎬 Movies</span>
+                        </label>
+                        <label class="hobby-badge">
+                            <input type="checkbox" value="art">
+                            <span>🎨 Art</span>
+                        </label>
+                        <label class="hobby-badge">
+                            <input type="checkbox" value="nature">
+                            <span>🌿 Nature</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🎨 Design Preference</h3>
+                    <p>Describe the look you want (e.g., soft pastel, elegant, festive, minimal, floral).</p>
+                    <textarea id="designPreference" rows="3" placeholder="Your design preference..."></textarea>
+                </div>
+
+                <!-- Language Selection -->
+                <div class="form-section">
+                    <h3>🌍 Language</h3>
+                    <select id="languageSelect" class="language-select">
+                        <option value="en">🇬🇧 English</option>
+                        <option value="es">🇪🇸 Spanish</option>
+                        <option value="fr">🇫🇷 French</option>
+                        <option value="de">🇩🇪 German</option>
+                        <option value="hi">🇮🇳 Hindi</option>
+                        <option value="zh">🇨🇳 Chinese</option>
+                        <option value="ja">🇯🇵 Japanese</option>
+                        <option value="ar">🇸🇦 Arabic</option>
+                        <option value="pt">🇵🇹 Portuguese</option>
+                        <option value="ru">🇷🇺 Russian</option>
+                    </select>
+                </div>
+
+                <!-- AI Generate Button -->
+                <button class="btn btn-primary btn-large btn-ai" onclick="generateAIMessages()">
+                    🤖 Generate from Hobbies
+                </button>
+
+                <!-- AI Suggestions -->
+                <div id="aiSuggestions" class="ai-suggestions" style="display:none;">
+                    <h3>✨ AI-Generated Messages</h3>
+                    <p class="suggestion-hint">Select a message or edit to customize:</p>
+                    <div id="messageSuggestions" class="message-suggestions"></div>
+                </div>
+
+                <!-- Custom Message -->
+                <div class="form-section">
+                    <h3>✍️ Your Message</h3>
+                    <textarea id="customMessage" rows="6" placeholder="Write your own message or edit an AI suggestion..."></textarea>
+                    <div class="message-tools">
+                        <button class="btn btn-small" onclick="startSpeechToText()">🎙️ Speak</button>
+                        <button class="btn btn-small" onclick="suggestMessage()">✨ AI Suggest</button>
+                        <button class="btn btn-small" onclick="summarizeMessage()">📝 AI Summary</button>
+                        <button class="btn btn-small" onclick="speakMessage()">🔊 Listen</button>
+                        <button class="btn btn-small" onclick="translateMessage()">🌍 Translate</button>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-large" onclick="generateCard()">
+                    🎉 Generate Card
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="enhancements" class="view">
+        <div class="container">
+            <h1 class="page-title">🎨 Add Enhancements</h1>
+
+            <div class="enhancements-grid">
+                <!-- Upload Photo -->
+                <div class="enhancement-card">
+                    <h3>📸 Upload Photo</h3>
+                    <input type="file" id="photoUpload" accept="image/*" onchange="handlePhotoUpload(event)">
+                    <div id="photoPreview"></div>
+                </div>
+
+                <!-- AI Artwork -->
+                <div class="enhancement-card">
+                    <h3>🎨 AI-Generated Artwork</h3>
+                    <p>Generate custom illustrations</p>
+                    <input type="text" id="artworkPrompt" placeholder="Describe the artwork...">
+                    <button class="btn btn-secondary" onclick="generateAIArtwork()">Generate Art</button>
+                    <div id="artworkPreview"></div>
+                </div>
+
+                <!-- Background Music -->
+                <div class="enhancement-card">
+                    <h3>🎵 Background Music</h3>
+                    <select id="musicSelect" onchange="previewMusic()">
+                        <option value="">-- Select Music --</option>
+                        <option value="happy-birthday">Happy Birthday</option>
+                        <option value="romantic">Romantic Melody</option>
+                        <option value="celebration">Celebration</option>
+                        <option value="peaceful">Peaceful</option>
+                        <option value="upbeat">Upbeat</option>
+                        <option value="custom">Upload Custom</option>
+                    </select>
+                    <input type="file" id="customMusic" accept="audio/*" style="display:none;">
+                    <div id="musicPlayer"></div>
+                </div>
+
+                <!-- Voice Note -->
+                <div class="enhancement-card">
+                    <h3>🎤 Voice Message</h3>
+                    <button class="btn btn-secondary" onclick="recordVoice()">🔴 Record</button>
+                    <input type="file" id="voiceUpload" accept="audio/*">
+                    <div id="voicePreview"></div>
+                </div>
+
+                <!-- Soulful Mode -->
+                <div class="enhancement-card full-width">
+                    <h3>🕉️ Soulful Mode</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="soulfulMode" onchange="toggleSoulfulMode()">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Add wisdom quotes & affirmations</span>
+                    </label>
+                    <div id="soulfulContent" style="display:none;">
+                        <textarea id="affirmation" placeholder="Custom affirmation or wisdom quote..."></textarea>
+                        <button class="btn btn-small" onclick="generateAffirmation()">✨ Generate Quote</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-large" onclick="proceedToPreview()">
+                Continue to Preview →
+            </button>
+        </div>
+    </section>
+
+    <section id="preview" class="view">
+        <div class="container">
+            <h1 class="page-title">👁️ Preview Your Card</h1>
+
+            <div class="preview-controls">
+                <button class="btn btn-secondary" onclick="toggleFullscreen()">🖵 Fullscreen</button>
+                <button class="btn btn-secondary" onclick="toggleFormat()">🖨️ Print Format</button>
+                <button class="btn btn-secondary" onclick="playAnimations()">▶️ Play Animations</button>
+            </div>
+
+            <!-- Card Preview with Animations -->
+            <div id="cardPreviewContainer" class="card-preview-container">
+                <div id="finalCard" class="final-card">
+                    <!-- Dynamic content will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Feedback -->
+            <div class="feedback-section">
+                <h3>How do you like it?</h3>
+                <div class="feedback-buttons">
+                    <button class="btn-feedback" onclick="provideFeedback('love')">😍 Love it!</button>
+                    <button class="btn-feedback" onclick="provideFeedback('good')">👍 Good</button>
+                    <button class="btn-feedback" onclick="provideFeedback('edit')">✏️ Need edits</button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-large" onclick="proceedToShare()">
+                Continue to Share →
+            </button>
+        </div>
+    </section>
+
+    <section id="share" class="view">
+        <div class="container">
+            <h1 class="page-title">🚀 Share Your Card</h1>
+
+            <div class="share-options-grid">
+                <!-- Instant Share -->
+                <div class="share-card">
+                    <h3>📱 Instant Share</h3>
+                    <div class="share-buttons-modern">
+                        <button class="share-btn whatsapp" onclick="shareToWhatsApp()">
+                            <span class="share-icon">💬</span>
+                            WhatsApp
+                        </button>
+                        <button class="share-btn instagram" onclick="shareToInstagram()">
+                            <span class="share-icon">📷</span>
+                            Instagram
+                        </button>
+                        <button class="share-btn linkedin" onclick="shareToLinkedIn()">
+                            <span class="share-icon">💼</span>
+                            LinkedIn
+                        </button>
+                        <button class="share-btn email" onclick="shareViaEmail()">
+                            <span class="share-icon">📧</span>
+                            Email
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Download Options -->
+                <div class="share-card">
+                    <h3>📥 Download</h3>
+                    <div class="download-options">
+                        <button class="btn btn-secondary btn-block" onclick="downloadPNG()">
+                            📄 PNG Image (1200x1200)
+                        </button>
+                        <button class="btn btn-secondary btn-block" onclick="downloadPDF()">
+                            📑 PDF (Print Ready)
+                        </button>
+                        <button class="btn btn-secondary btn-block" onclick="downloadHD()">
+                            🖼️ HD Version (2400x2400)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Order Gifts -->
+                <div class="share-card">
+                    <h3>🎁 Order Gifts</h3>
+                    <p>Turn your card into a gift on trusted platforms:</p>
+                    <div class="download-options">
+                        <a class="btn btn-secondary btn-block" href="https://www.fnp.com" target="_blank" rel="noopener noreferrer">
+                            FNP (Ferns N Petals)
+                        </a>
+                        <a class="btn btn-secondary btn-block" href="https://www.amazon.in/gp/gift-central" target="_blank" rel="noopener noreferrer">
+                            Amazon Gift Store
+                        </a>
+                        <a class="btn btn-secondary btn-block" href="https://www.igp.com" target="_blank" rel="noopener noreferrer">
+                            IGP Gifts
+                        </a>
+                        <a class="btn btn-secondary btn-block" href="https://www.floweraura.com" target="_blank" rel="noopener noreferrer">
+                            FlowerAura
+                        </a>
+                        <a class="btn btn-secondary btn-block" href="https://www.giftcart.com" target="_blank" rel="noopener noreferrer">
+                            Giftcart
+                        </a>
+                    </div>
+                </div>
+
+                <!-- QR Code -->
+                <div class="share-card">
+                    <h3>📱 QR Code</h3>
+                    <p>Generate a QR code for physical cards</p>
+                    <button class="btn btn-secondary" onclick="generateQRCode()">Generate QR</button>
+                    <div id="qrCodeContainer" class="qr-container"></div>
+                    <p class="qr-hint">Scan to view digital card</p>
+                </div>
+
+                <!-- Save for Later -->
+                <div class="share-card">
+                    <h3>💾 Save to Collection</h3>
+                    <input type="text" id="cardTitle" placeholder="Give your card a name...">
+                    <button class="btn btn-secondary btn-block" onclick="saveToFavorites()">
+                        ⭐ Save to Favorites
+                    </button>
+                    <div class="saved-message" id="savedMessage" style="display:none;">
+                        ✅ Card saved to your collection!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Actions -->
+            <div class="success-actions">
+                <button class="btn btn-primary" onclick="createAnother()">
+                    🎉 Create Another Card
+                </button>
+                <button class="btn btn-secondary" onclick="viewCollection()">
+                    📚 View My Collection
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Configuration Modal -->
+    <div id="apiModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeAPIModal()">&times;</span>
+            <h2>🔑 Configure Gemini API</h2>
+            <p>Enter your Google Gemini API key to unlock AI features:</p>
+            <input type="text" id="apiKeyInput" placeholder="Enter your Gemini API key">
+            <a href="https://makersuite.google.com/app/apikey" target="_blank" class="api-help">
+                Need an API key? Get one here →
+            </a>
+            <button class="btn btn-primary" onclick="saveAPIKey()">Save API Key</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
